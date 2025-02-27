@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nats-consumer-secret
+data:
+  NATSHost: bmF0czovL25hdHMuZGVmYXVsdC5zdmMuY2x1c3Rlci5sb2NhbDo0MjIyCg==
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats-consumer
+  namespace: default
+  labels:
+    app: nats-consumer
+spec:
+  selector:
+    matchLabels:
+      app: nats-consumer
+  template:
+    metadata:
+      labels:
+        app: nats-consumer
+    spec:
+      containers:
+        - name: nats-consumer
+          image: ghcr.io/kyokugirl/nats-client:0.1
+          imagePullPolicy: Always
+          command:
+            - receive
+          args:
+            - "nats://nats.default.svc.cluster.local:4222"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: nats-consumer
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: nats-consumer
+  pollingInterval: 5 # Optional. Default: 30 seconds
+  cooldownPeriod: 30 # Optional. Default: 300 seconds
+  maxReplicaCount: 30 # Optional. Default: 100
+  triggers:
+    - type: NATS
+      metadata:
+        queueName: hello
+        queueLength: "5"
+      authenticationRef:
+        name: nats-consumer-trigger
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: nats-consumer-trigger
+  namespace: default
+spec:
+  secretTargetRef:
+    - parameter: host
+      name: nats-consumer-secret
+      key: NATSHost
+---
+

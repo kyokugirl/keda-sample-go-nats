@@ -1,0 +1,14 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: nats-publish
+spec:
+  template:
+    spec:
+      containers:
+        - name: nats-client
+          image: ghcr.io/kyokugirl/nats-client:0.1
+          imagePullPolicy: Always
+          command: ["send", "nats://nats.default.svc.cluster.local:4222", "300"]
+      restartPolicy: Never
+  backoffLimit: 4
