@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: nats-client
-          image: ghcr.io/kyokugirl/nats-client:test2
+          image: ghcr.io/kyokugirl/nats-client:0.1
           imagePullPolicy: Always
           command: ["send", "nats://nats.default.svc.cluster.local:4222", "300"]
       restartPolicy: Never
