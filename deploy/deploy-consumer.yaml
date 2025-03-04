@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: nats-consumer
-          image: ghcr.io/kyokugirl/nats-client:test2
+          image: ghcr.io/kyokugirl/nats-client:0.1
           imagePullPolicy: Always
           command:
             - receive
